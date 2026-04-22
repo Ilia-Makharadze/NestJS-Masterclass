@@ -1,23 +1,43 @@
 import { Injectable,Inject, forwardRef } from '@nestjs/common';
 import { GetUsersParamDto } from '../dtos/get-users-param.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../user.entity';
+import { CreateUserDto } from '../dtos/create-user.dto';
 
 
 
 @Injectable()
 export class UsersService {
-constructor(
 
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService
+    
+
+
+    ///////////// Dependency Injection of AuthService to use its methods in UsersService
+constructor(
+//injecting userREpository to use its methods in UsersService
+
+    @InjectRepository(User)
+private usersRepository: Repository<User>
+   
 ) {}
+
+public async createUser(createUserDto: CreateUserDto) {
+
+    const existingUser = await this.usersRepository.findOne({ 
+        where: { email: createUserDto.email }
+     });
+     let newUser=this.usersRepository.create(createUserDto);
+     newUser=await this.usersRepository.save(newUser);
+     return newUser;
+
+}
 
   // This is a placeholder for the UsersService. You can implement your business logic here.
   public findAll(getUsersParamDto: GetUsersParamDto, 
     limit: number,
      page: number) {
-        const isAuth= this.authService.isAuth('sample token');
-        console.log(isAuth);
 
     return[
         {   id: 1,

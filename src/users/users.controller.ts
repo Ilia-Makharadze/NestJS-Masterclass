@@ -51,10 +51,11 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @Headers() headers: any
   ) {
+
     console.log(createUserDto);
     console.log(headers);
 
-    return "created successfully post request for users";
+    return this.usersService.createUser(createUserDto);
   }
   @Patch()
   public patchuser(@Body() patchUserDto: PatchUserDto){
