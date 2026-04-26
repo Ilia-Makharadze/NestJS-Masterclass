@@ -1,16 +1,14 @@
-import { IsInt, IsOptional } from "class-validator";
-import {Type} from "class-transformer";
-import { ApiPropertyOptional } from "@nestjs/swagger/dist/decorators/api-property.decorator";
+import { IsInt, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger/dist/decorators/api-property.decorator';
 
 export class GetUsersParamDto {
-    @ApiPropertyOptional({
-        description: 'get user with a specific id',
-        example: 1234,
-        
-    })
-    @IsOptional()
-    @IsInt()
-    @Type(()=>Number)
-    id?: number;
-
+  @ApiPropertyOptional({
+    description: 'get user with a specific id',
+    example: 1234,
+  })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
 }

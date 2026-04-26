@@ -2,8 +2,8 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "firstName": "ilia",
-    "lastName": "makharadze",
-    "email": "test@mail.ge",
+    "firstName": "luka",
+    "lastName": "balerina",
+    "email": "balerinakapuchina@gmail.com",
     "password": "Paswrod123"
 }
