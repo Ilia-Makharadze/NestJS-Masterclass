@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, RequestTimeoutException, BadRequestException } from '@nestjs/common';
 import { GetUsersParamDto } from '../dtos/get-users-param.dto';
 // import { AuthService } from 'src/auth/providers/auth.service';
 import { Repository } from 'typeorm';
@@ -21,9 +21,28 @@ export class UsersService {
   ) {}
 
   public async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
+
+   let existingUser: User | null = null;
+
+    try{
+      existingUser=await this.usersRepository.findOne({
+        where: { email: createUserDto.email },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to process for request', {
+          description: 'error connection to the database',
+        })
+
+    }
+
+if(existingUser){
+  throw new BadRequestException(
+    'already exsits this email'
+  )
+}
+
+
+
     let newUser = this.usersRepository.create(createUserDto);
     newUser = await this.usersRepository.save(newUser);
     return newUser;
@@ -49,5 +68,51 @@ export class UsersService {
       name: 'John Doe',
       email: 'test@gmail.com',
     };
+  }
+
+  public async createMany(createUsersDto: CreateUserDto[]) {
+    const queryRunner = this.usersRepository.manager.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const users: User[] = [];
+
+      for (const userDto of createUsersDto) {
+        // check if email already exists
+        const existingUser = await queryRunner.manager.findOne(User, {
+          where: { email: userDto.email },
+        });
+
+        if (existingUser) {
+          throw new BadRequestException(
+            `User with email ${userDto.email} already exists`,
+          );
+        }
+
+        const newUser = queryRunner.manager.create(User, userDto);
+        const savedUser = await queryRunner.manager.save(newUser);
+
+        users.push(savedUser);
+      }
+
+      await queryRunner.commitTransaction();
+      return users;
+
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new RequestTimeoutException('Failed to create users', {
+        description: 'Database transaction failed',
+      });
+
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

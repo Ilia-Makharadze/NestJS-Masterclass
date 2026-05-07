@@ -66,4 +66,8 @@ export class UsersController {
     console.log(patchUserDto);
     return 'updated successfully patch request for users';
   }
+  @Post('many')
+  createMany(@Body() dto: CreateUserDto[]) {
+    return this.usersService.createMany(dto);
+  }
 }

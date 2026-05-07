@@ -1,0 +1,17 @@
+POST http://localhost:3000/users/many
+Content-Type: application/json
+
+[
+  {
+    "firstName": "luka",
+    "lastName": "balerina",
+    "email": "test1@gmai1l.com",
+    "password": "Paswrod123"
+  },
+  {
+    "firstName": "nika",
+    "lastName": "test",
+    "email": "test2@gmail12.com",
+    "password": "Paswrod123"
+  }
+]
